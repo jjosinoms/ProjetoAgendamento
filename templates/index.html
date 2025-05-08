@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendamento de Clientes{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Sistema de Agendamento</h2>
+
+<div class="row g-4">
+    <!-- Card do formulário -->
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                Novo Agendamento
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('agendar') }}">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do cliente</label>
+                        <input type="text" name="nome" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpf" class="form-label">CPF</label>
+                        <input type="text" name="cpf" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" name="endereco" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacao" class="form-label">Observação</label>
+                        <textarea name="observacao" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="data_hora" class="form-label">Data e Hora</label>
+                        <input type="datetime-local" name="data_hora" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Confirmado">Confirmado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Agendar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card da tabela -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                Agendamentos Registrados
+            </div>
+            <div class="card-body table-responsive">
+                <div class="mb-3">
+                    <input type="text" id="filtro" class="form-control"
+                        placeholder="Filtrar por data (DD-MM-AAAA), hora (HH:MM) ou ambos">
+                </div>
+                {% if agendamentos %}
+                <table class="table table-hover table-bordered align-middle" id="tabela-agendamentos">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data e Hora</th>
+                            <th>Cliente</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ag in agendamentos %}
+                        <tr>
+                            <td>
+                                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modal{{ ag.id }}">
+                                    {{ ag.data_hora | datetime_format }}
+                                </a>
+                            </td>
+                            <td>{{ ag.nome }}</td>
+                            <td>{{ ag.status or 'Pendente' }}</td>
+                            <td>
+                                <a href="{{ url_for('editar', id=ag.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{{ url_for('excluir', id=ag.id) }}" class="btn btn-danger btn-sm">Excluir</a>
+                            </td>
+                        </tr>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal{{ ag.id }}" tabindex="-1" aria-labelledby="modalLabel{{ ag.id }}" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel{{ ag.id }}">Detalhes do Cliente</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p><strong>Nome:</strong> {{ ag.nome }}</p>
+                                <p><strong>Data Agendada:</strong> {{ ag.data_hora | datetime_format }}</p>
+                                <p><strong>CPF:</strong> {{ ag.cpf }}</p>
+                                <p><strong>Email:</strong> {{ ag.email }}</p>
+                                <p><strong>Endereço:</strong> {{ ag.endereco }}</p>
+                                <p><strong>Status:</strong> {{ ag.status or 'Pendente' }}</p>
+                                <p><strong>Observação:</strong> {{ ag.observacao or 'Nenhuma' }}</p>
+                                <p><strong>Histórico:</strong><br>
+                                  {% for evento in ag.historico %}
+                                    - {{ evento }}<br>
+                                  {% endfor %}
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Nenhum agendamento registrado ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

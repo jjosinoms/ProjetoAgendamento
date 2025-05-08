@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Agendamento{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filtro = document.getElementById("filtro");
+            const tabela = document.getElementById("tabela-agendamentos");
+            if (filtro && tabela) {
+                filtro.addEventListener("input", function () {
+                    const valor = filtro.value.toLowerCase();
+                    const linhas = tabela.querySelectorAll("tbody tr");
+                    linhas.forEach(linha => {
+                        const textoDataHora = linha.cells[0].textContent.toLowerCase();
+                        const textoCliente = linha.cells[1].textContent.toLowerCase();
+                        const visivel = textoDataHora.includes(valor) || textoCliente.includes(valor);
+                        linha.style.display = visivel ? "" : "none";
+                    });
+                });
+            }
+        });
+    </script>
+    <!-- Inclusão do JavaScript do Bootstrap (para garantir que a modal funcione) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
